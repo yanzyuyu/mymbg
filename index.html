@@ -113,8 +113,24 @@
                 mediaElement.classList.add('hidden');
                 buttonElement.innerHTML = '<i data-lucide="eye" class="w-3.5 h-3.5"></i> Tampilkan';
             }
-            // Perbarui ikon Lucide jika ada elemen baru
             lucide.createIcons();
+        }
+
+        // Fungsi untuk toggle teks Baca Selengkapnya
+        function toggleReadMore(id) {
+            const shortText = document.getElementById('short-text-' + id);
+            const fullText = document.getElementById('full-text-' + id);
+            const readMoreBtn = document.getElementById('read-more-btn-' + id);
+
+            if (shortText.classList.contains('hidden')) {
+                shortText.classList.remove('hidden');
+                fullText.classList.add('hidden');
+                readMoreBtn.textContent = 'Baca Selengkapnya...';
+            } else {
+                shortText.classList.add('hidden');
+                fullText.classList.remove('hidden');
+                readMoreBtn.textContent = 'Sembunyikan';
+            }
         }
 
         let memoryCounter = 0;
@@ -142,12 +158,35 @@
             let iconName = 'book-open';
             let cardContentHTML = '';
 
+            // Format teks (ubah enter menjadi HTML break)
+            const formattedText = memoryText.replace(/\n/g, '<br>');
+
+            // Logika untuk menampilkan teks secara singkat atau panjang
+            let textDisplayHTML = '';
+            const charLimit = 85; // Batas karakter agar tombol baca selengkapnya muncul
+            
+            if (memoryText.length > charLimit) {
+                const truncatedText = formattedText.substring(0, charLimit);
+                textDisplayHTML = `
+                    <p class="text-gray-700 text-sm">
+                        <span id="short-text-${memoryCounter}">${truncatedText}...</span>
+                        <span id="full-text-${memoryCounter}" class="hidden">${formattedText}</span>
+                        <br/>
+                        <button id="read-more-btn-${memoryCounter}" onclick="toggleReadMore('${memoryCounter}')" class="text-purple-600 font-semibold text-xs mt-2 hover:underline cursor-pointer">
+                            Baca Selengkapnya...
+                        </button>
+                    </p>
+                `;
+            } else {
+                textDisplayHTML = `<p class="text-gray-700 text-sm">${formattedText}</p>`;
+            }
+
             if (memoryType === 'chat') {
                 typeLabel = 'Chat';
                 iconName = 'message-circle';
                 cardContentHTML = `
                     <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 text-gray-700 text-sm space-y-2">
-                        <p>${memoryText.replace(/\n/g, '<br>')}</p>
+                        ${textDisplayHTML}
                     </div>
                 `;
             } else if (memoryType === 'text') {
@@ -155,7 +194,7 @@
                 iconName = 'book-open';
                 cardContentHTML = `
                     <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-gray-700 text-sm">
-                        <p>${memoryText.replace(/\n/g, '<br>')}</p>
+                        ${textDisplayHTML}
                     </div>
                 `;
             } else if (memoryType === 'photo' || memoryType === 'video') {
@@ -191,7 +230,7 @@
                                 <i data-lucide="eye-off" class="w-3.5 h-3.5"></i> Sembunyikan
                             </button>
                         </div>
-                        <p class="text-gray-700 text-sm">${memoryText.replace(/\n/g, '<br>')}</p>
+                        ${textDisplayHTML}
                         <div id="media-block-${memoryCounter}" class="bg-gray-50 border border-gray-100 rounded-xl overflow-hidden flex flex-col justify-center items-center">
                             ${mediaDisplay}
                         </div>
@@ -228,4 +267,3 @@
     </script>
 </body>
 </html>
-
