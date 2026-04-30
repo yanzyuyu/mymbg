@@ -1,1 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Lane - iish & royco</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #faf5ff;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-6 sm:py-10 px-4">
+
+    <div class="max-w-2xl mx-auto w-full">
+        
+        <div class="bg-white rounded-2xl shadow-sm p-5 sm:p-6 mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-purple-100">
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
+                        <i data-lucide="heart" class="w-6 h-6"></i>
+                    </div>
+                    <span class="bottom-0 right-0 absolute w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full"></span>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold text-gray-800">Memory Lane ✨</h1>
+                    <p class="text-xs sm:text-sm text-purple-500 font-medium">iish & royco</p>
+                </div>
+            </div>
+            <div>
+                <span class="inline-flex items-center gap-1.5 bg-purple-50 text-purple-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-purple-200">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> 365 Days
+                </span>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm p-5 sm:p-6 mb-6 sm:mb-8 border border-purple-100">
+            <h2 class="text-sm sm:text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="file-text" class="w-5 h-5 text-purple-600"></i>
+                <span>Tambah Kenangan Baru</span>
+            </h2>
+            <form id="memoryForm" class="space-y-4" onsubmit="addMemory(event)">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Judul / Pengirim</label>
+                    <input type="text" id="senderName" required placeholder="Contoh: iish atau royco" class="w-full text-sm px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Isi Kenangan / Pesan</label>
+                    <textarea id="memoryText" rows="3" required placeholder="Tulis pesan atau cerita di sini..." class="w-full text-sm px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition resize-none"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Tipe Kenangan</label>
+                        <select id="memoryType" onchange="toggleMediaInput()" class="w-full text-sm px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+                            <option value="chat">Chat</option>
+                            <option value="text">Catatan / Cerita</option>
+                            <option value="photo">Foto</option>
+                            <option value="video">Video</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Tanggal</label>
+                        <input type="date" id="memoryDate" required class="w-full text-sm px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+                    </div>
+                </div>
+
+                <div id="mediaUploadContainer" class="hidden">
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Upload File (Gambar/Video)</label>
+                    <input type="file" id="memoryFile" accept="image/*,video/*" class="w-full text-sm px-3 py-2 border border-gray-200 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer">
+                </div>
+
+                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium py-3 rounded-xl transition duration-200 cursor-pointer shadow-sm flex items-center justify-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i> Simpan Kenangan
+                </button>
+            </form>
+        </div>
+
+        <div class="space-y-6" id="memoryList">
+            </div>
+
+        <p class="text-center text-xs text-gray-400 mt-8">
+            Dibuat dengan cinta untuk iish & royco
+        </p>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function toggleMediaInput() {
+            const memoryType = document.getElementById('memoryType').value;
+            const mediaContainer = document.getElementById('mediaUploadContainer');
+            if (memoryType === 'photo' || memoryType === 'video') {
+                mediaContainer.classList.remove('hidden');
+            } else {
+                mediaContainer.classList.add('hidden');
+            }
+        }
+
+        // Fungsi untuk menyembunyikan atau menampilkan media
+        function toggleMediaVisibility(id) {
+            const mediaElement = document.getElementById('media-block-' + id);
+            const buttonElement = document.getElementById('btn-toggle-' + id);
+            
+            if (mediaElement.classList.contains('hidden')) {
+                mediaElement.classList.remove('hidden');
+                buttonElement.innerHTML = '<i data-lucide="eye-off" class="w-3.5 h-3.5"></i> Sembunyikan';
+            } else {
+                mediaElement.classList.add('hidden');
+                buttonElement.innerHTML = '<i data-lucide="eye" class="w-3.5 h-3.5"></i> Tampilkan';
+            }
+            // Perbarui ikon Lucide jika ada elemen baru
+            lucide.createIcons();
+        }
+
+        let memoryCounter = 0;
+
+        function addMemory(event) {
+            event.preventDefault();
+
+            memoryCounter++;
+
+            const senderName = document.getElementById('senderName').value;
+            const memoryText = document.getElementById('memoryText').value;
+            const memoryType = document.getElementById('memoryType').value;
+            const memoryDate = document.getElementById('memoryDate').value;
+            const memoryFile = document.getElementById('memoryFile').files[0];
+
+            let formattedDate = 'Hari ini';
+            if (memoryDate) {
+                const dateObj = new Date(memoryDate);
+                formattedDate = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            } else {
+                formattedDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            }
+
+            let typeLabel = 'Catatan';
+            let iconName = 'book-open';
+            let cardContentHTML = '';
+
+            if (memoryType === 'chat') {
+                typeLabel = 'Chat';
+                iconName = 'message-circle';
+                cardContentHTML = `
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 text-gray-700 text-sm space-y-2">
+                        <p>${memoryText.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            } else if (memoryType === 'text') {
+                typeLabel = 'Catatan';
+                iconName = 'book-open';
+                cardContentHTML = `
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-gray-700 text-sm">
+                        <p>${memoryText.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            } else if (memoryType === 'photo' || memoryType === 'video') {
+                typeLabel = memoryType === 'photo' ? 'Foto' : 'Video';
+                iconName = memoryType === 'photo' ? 'image' : 'video';
+                
+                let mediaDisplay = '';
+                if (memoryFile) {
+                    const fileURL = URL.createObjectURL(memoryFile);
+                    if (memoryType === 'photo') {
+                        mediaDisplay = `<img src="${fileURL}" alt="Kenangan" class="w-full h-full object-cover rounded-xl shadow-sm">`;
+                    } else {
+                        mediaDisplay = `
+                            <video src="${fileURL}" controls class="w-full rounded-xl shadow-sm max-h-[320px] bg-black">
+                                Browser Anda tidak mendukung pemutar video.
+                            </video>
+                        `;
+                    }
+                } else {
+                    mediaDisplay = `
+                        <div class="flex flex-col items-center py-10 px-4 text-gray-400">
+                            <i data-lucide="${iconName}" class="w-8 h-8 text-purple-400 mb-2"></i>
+                            <span class="text-xs font-medium">Tidak ada file yang diunggah</span>
+                        </div>
+                    `;
+                }
+
+                cardContentHTML = `
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <p class="text-gray-700 text-sm font-medium">Pesan Kenangan</p>
+                            <button id="btn-toggle-${memoryCounter}" onclick="toggleMediaVisibility('${memoryCounter}')" class="inline-flex items-center gap-1 bg-purple-50 hover:bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-medium border border-purple-200 cursor-pointer transition">
+                                <i data-lucide="eye-off" class="w-3.5 h-3.5"></i> Sembunyikan
+                            </button>
+                        </div>
+                        <p class="text-gray-700 text-sm">${memoryText.replace(/\n/g, '<br>')}</p>
+                        <div id="media-block-${memoryCounter}" class="bg-gray-50 border border-gray-100 rounded-xl overflow-hidden flex flex-col justify-center items-center">
+                            ${mediaDisplay}
+                        </div>
+                    </div>
+                `;
+            }
+
+            const memoryList = document.getElementById('memoryList');
+            const newMemoryHTML = `
+                <div class="bg-white rounded-2xl shadow-sm p-5 sm:p-6 border border-purple-100 hover:shadow-md transition">
+                    <div class="flex justify-between items-start gap-4 mb-3">
+                        <div>
+                            <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-full mb-1">
+                                <i data-lucide="${iconName}" class="w-3.5 h-3.5"></i> ${typeLabel}
+                            </span>
+                            <h3 class="font-bold text-gray-800 text-sm mt-1">${senderName}</h3>
+                        </div>
+                        <span class="text-xs text-gray-400 font-medium">${formattedDate}</span>
+                    </div>
+                    ${cardContentHTML}
+                </div>
+            `;
+
+            memoryList.insertAdjacentHTML('afterbegin', newMemoryHTML);
+            lucide.createIcons();
+
+            // Reset Form
+            document.getElementById('senderName').value = '';
+            document.getElementById('memoryText').value = '';
+            document.getElementById('memoryDate').value = '';
+            document.getElementById('memoryFile').value = '';
+            document.getElementById('mediaUploadContainer').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
 
