@@ -99,7 +99,7 @@
     <script>
         lucide.createIcons();
 
-        // --- KONFIGURASI FIREBASE (Ganti dengan punyamu) ---
+        // --- KONFIGURASI FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyAxQBANFIsNpC68G5U5ZRNRqSq64_G4lnw",
             authDomain: "mymbgiish.firebaseapp.com",
@@ -107,14 +107,29 @@
             projectId: "mymbgiish",
             storageBucket: "mymbgiish.firebasestorage.app",
             messagingSenderId: "410828236947",
-            appId: "1:410828236947:web:afd50906ed34b461014566"
-
+            appId: "1:410828236947:web:afd50906ed34b461014566",
+            measurementId: "G-1RSN72Z2NR"
         };
 
         // Inisialisasi Firebase
-        firebase.initializeApp(firebaseConfig);
+        try {
+            firebase.initializeApp(firebaseConfig);
+            console.log("Firebase initialized");
+        } catch (e) {
+            console.error("Firebase init error:", e);
+        }
+        
         const database = firebase.database();
         const memoriesRef = database.ref('memories');
+
+        // Monitor Koneksi
+        database.ref(".info/connected").on("value", (snap) => {
+            if (snap.val() === true) {
+                console.log("Terhubung ke Firebase! ✅");
+            } else {
+                console.warn("Terputus dari Firebase... ❌");
+            }
+        });
 
         // Konfigurasi API yang kamu berikan
         const PASTELINK_KEY = "rwqys62vko65hroqzyrhj73ockawxvpiagxzgiu7bjb7zyfjeso2oz35wnrsxw5hvx372ougj22";
